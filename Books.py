@@ -73,7 +73,14 @@ async def read_category_by_query(year: int):
             books_to_return.append(book)
     return books_to_return
 
+@app.get("/books/byauthor/")
+async def read_books_by_author_path(author: str):
+    books_to_return = []
+    for book in books:
+        if book.get('author').casefold() == author.casefold():
+            books_to_return.append(book)
 
+    return books_to_return
 @app.get("/books/{author}/")
 async def read_category_by_query(author: str, title: str):
     books_to_return = []
