@@ -1,14 +1,8 @@
-from fastapi import FastAPI
-from test_app.models import Book
+from fastapi import FastAPI, Body
 
 app = FastAPI()
 
 class Books:
-    id: int
-    title: str
-    author: str
-    description: str
-    rating: int
 
     def __init__(self, id, title, author, description, rating):
         self.id = id
