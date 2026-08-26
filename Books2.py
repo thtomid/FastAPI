@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body
-
+from pydantic import BaseModel
 app = FastAPI()
 
 class Books:
@@ -10,6 +10,15 @@ class Books:
         self.author = author
         self.description = description
         self.rating = rating
+
+
+class BookRequest(BaseModel):
+    id: int
+    title: str
+    author: str
+    description: str
+    rating: int
+
 
 BOOKS = [
     Books(1, "To Kill a Mockingbird", "Harper Lee", "A gripping tale of racial injustice and childhood innocence in the Deep South.", 5),
@@ -69,5 +78,7 @@ async def read_all_books():
     return BOOKS
 
 @app.post("/create-book")
-async def create_book(book_request=Body()):
+async def create_book(book_request: BookRequest):
+    new_book = Books(**book_request.dict())
+    print(type(new_book))
     BOOKS.append(book_request)
