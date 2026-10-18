@@ -13,7 +13,7 @@ from jose import jwt
 
 router = APIRouter()
 
-SECRET_KEY = ''
+SECRET_KEY = '1f583ee1ad481e39f9947e7a6b24e6dc01a7edc35c65a995da0f2e4eb991a6dd'
 ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -25,6 +25,10 @@ class CreateUserRequest(BaseModel):
     last_name: str
     password: str
     role: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 def get_db():
@@ -43,7 +47,7 @@ def authenticate_user(username: str, password: str, db):
         return False
     if not bcrypt_context.verify(password, user.hashed_password):
         return False
-    return True
+    return user
 
 def create_access_token(username: str, user_id: int, expires_delta: timedelta):
     encode = {'sub': username, 'id': user_id}
@@ -66,7 +70,7 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
     db.commit()
 
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
@@ -74,4 +78,4 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
     token = create_access_token(user.username, user.id, timedelta(minutes=20))
 
-    return 'Successfully Authentication'
+    return {'access_token': token, 'token_type': 'bearer'}
